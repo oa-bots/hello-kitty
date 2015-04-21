@@ -1,0 +1,18 @@
+{
+  "bot_id": "hello-kitty",
+  "title": "Inference Bot",
+  "description": "This is an inference bot",
+  "language": "ruby",
+  "data_type": "address",
+  "files": [
+    "scraper.rb",
+    "hello_kitty.rb"
+  ],
+  "frequency": "daily",
+  "publisher": {
+    "name": "Open Addresses",
+    "url": "https://openaddressesuk.org/",
+    "terms": "MIT License",
+    "terms_url": "http://opensource.org/licenses/MIT"
+  }
+}
