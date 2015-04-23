@@ -13,11 +13,13 @@ class HelloKitty
     page = 1
     while total.nil? || count < total
       url = SOURCE+"page=#{page}&updated_since=#{interval.xmlschema}"
-      response = HTTPClient.new.get url
+      puts url
+      response = request_with_retries url
       # Set total if first run through
       if total.nil?
         total = (response.header['X-Total-Count'] + response.header['Total']).first.to_i
       end
+
       j = JSON.parse(response.content)
       tokens = j['addresses'].map { |p| p['url'].split('/').last }
       tokens.each do |token|
@@ -27,7 +29,7 @@ class HelloKitty
       page += 1
     end
   end
-  
+
   def self.infer(token)
     response = HTTPClient.new.post JESS, "token=#{token}"
     results = JSON.parse response.content
@@ -40,5 +42,22 @@ class HelloKitty
     $stderr.puts "Jess exploded with token=#{token}"
     []
   end
-  
+
+  def self.request_with_retries(url, tries = 0)
+    limit ||= 5
+    response = HTTPClient.new.get url
+    if response.http_header.status_code != 200
+      if (tries += 1) <= limit
+        seconds = 5 * tries
+        $stderr.puts "Hit error, trying again in #{seconds} seconds"
+        sleep seconds
+        request_with_retries(url, tries)
+      else
+        $stderr.puts "Giving up"
+      end
+    else
+      response
+    end
+  end
+
 end
