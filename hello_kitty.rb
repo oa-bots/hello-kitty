@@ -32,11 +32,15 @@ class HelloKitty
 
   def self.infer(token)
     response = HTTPClient.new.post JESS, "token=#{token}"
-    results = JSON.parse response.content
-    results["addresses"]["inferred"].map do |x|
-      address = x.dup
-      address['provenance'] = results['provenance']
-      address
+    if response.code == 400
+      $stderr.puts "Address #{token} is already inferred"
+    else
+      results = JSON.parse response.content
+      results["addresses"]["inferred"].map do |x|
+        address = x.dup
+        address['provenance'] = results['provenance']
+        address
+      end
     end
   rescue
     $stderr.puts "Jess exploded with token=#{token}"
